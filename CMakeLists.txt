@@ -9,3 +9,4 @@ project(
 )
 set(PROJECT_LICENSE "MIT")
 set(PROJECT_AUTHOR "Kyle Coffey")
+set(PROJECT_AUTHOR_EMAIL "me@phytolizer.dev")
