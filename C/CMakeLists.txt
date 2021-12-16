@@ -4,12 +4,21 @@ function(advent ADVENT_DAY)
   cmake_parse_arguments(PARSE_ARGV 0 "ADVENT" "" "" "EXTRA_SOURCES")
   set(ADVENT_SOURCES "Main.c;${EXTRA_SOURCES}")
   push_directory_executable(
-    TARGET_NAME "${DAY}"
-    OUTPUT_NAME "${DAY}.exe"
+    TARGET_NAME "${DAY}" OUTPUT_NAME "${DAY}.exe"
     SOURCE_FILES "${ADVENT_SOURCES}"
     INCLUDED_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/${DAY}"
     LINKED_LIBRARIES "Advent"
   )
+  add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${DAY}/Input.c"
+           "${CMAKE_CURRENT_BINARY_DIR}/${DAY}/Input.h"
+    DEPENDS "${CMAKE_CURRENT_LIST_DIR}/Source/${DAY}/Input.txt"
+    COMMAND
+      "bin2c" "-n" "inputText" "-d" "${CMAKE_CURRENT_BINARY_DIR}/${DAY}/Input.h" -o
+      "${CMAKE_CURRENT_BINARY_DIR}/${DAY}/Input.c"
+      "${CMAKE_CURRENT_LIST_DIR}/Source/${DAY}/Input.txt"
+  )
+  target_sources("${DAY}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/${DAY}/Input.c")
   configure_file(
     "DayConfig.h.cin" "${CMAKE_CURRENT_BINARY_DIR}/${DAY}/DayConfig.h"
   )
