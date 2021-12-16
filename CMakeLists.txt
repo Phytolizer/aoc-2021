@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12...3.22)
 
 project(
-  "Advent of Code 2021"
+  "Advent of Code"
   LANGUAGES "C" "CXX"
   VERSION "2021.0.0"
   DESCRIPTION "Advent of Code 2021"

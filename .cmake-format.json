@@ -26,6 +26,20 @@
           "INCLUDED_DIRECTORIES": "*",
           "LINKED_LIBRARIES": "*"
         }
+      },
+      "push_directory_library": {
+        "flags": [
+          "TARGET_NAME",
+          "SOURCE_FILES",
+          "INCLUDED_DIRECTORIES",
+          "LINKED_LIBRARIES"
+        ],
+        "kwargs": {
+          "TARGET_NAME": "1",
+          "SOURCE_FILES": "*",
+          "INCLUDED_DIRECTORIES": "*",
+          "LINKED_LIBRARIES": "*"
+        }
       }
     },
     "_help_override_spec": [

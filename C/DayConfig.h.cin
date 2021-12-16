@@ -1,0 +1,2 @@
+#define ADVENT_DAY @ADVENT_DAY@
+#define ADVENT_DAY_NAME "@DAY@"
