@@ -10,3 +10,8 @@ project(
 set(PROJECT_LICENSE "MIT")
 set(PROJECT_AUTHOR "Kyle Coffey")
 set(PROJECT_AUTHOR_EMAIL "me@phytolizer.dev")
+
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake Modules")
+include(PushDirectory)
+
+add_subdirectory("C")
