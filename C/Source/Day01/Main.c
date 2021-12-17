@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unicode/umachine.h>
 #include <unicode/urename.h>
+#include <unicode/ustdio.h>
 #include <unicode/ustring.h>
 #include <unicode/utf8.h>
 #include <unicode/utypes.h>
@@ -40,11 +41,32 @@ int main(int argc, char** argv)
   UErrorCode errorCode = U_ZERO_ERROR;
   u_strFromUTF8(unicodeInput, (int32_t)inputText_size, &unicodeInputSize, (const char*)inputText,
                 (int32_t)inputText_size, &errorCode);
+  unicodeInput[inputText_size] = 0;
   if (errorCode != U_ZERO_ERROR && errorCode != U_STRING_NOT_TERMINATED_WARNING)
   {
     fprintf(stderr, "%s\n", u_errorName(errorCode));
     return 1;
   }
+
+  UChar* saveptr;
+  U_STRING_DECL(delim, "\n", 1);
+  U_STRING_INIT(delim, "\n", 1);
+  int prevValue = -1;
+  int count = 0;
+  for (UChar* iter = u_strtok_r(unicodeInput, delim, &saveptr); iter != NULL; iter = u_strtok_r(NULL, delim, &saveptr))
+  {
+    int value;
+    if (u_sscanf(iter, "%d", &value) == 1)
+    {
+      if (value > prevValue && prevValue != -1)
+      {
+        ++count;
+      }
+      prevValue = value;
+    }
+  }
+
+  printf("%d\n", count);
 
   free(unicodeInput);
   return 0;

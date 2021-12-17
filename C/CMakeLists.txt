@@ -5,7 +5,7 @@ function(advent ADVENT_DAY)
     PARSE_ARGV 0 "ADVENT" "" "" "EXTRA_SOURCES;EXTRA_LIBRARIES"
   )
   set(ADVENT_SOURCES "Main.c;${ADVENT_EXTRA_SOURCES}")
-  set(ADVENT_LIBRARIES "Advent;icuuc;${ADVENT_EXTRA_LIBRARIES}")
+  set(ADVENT_LIBRARIES "Advent;icuuc;icuio;${ADVENT_EXTRA_LIBRARIES}")
   push_directory_executable(
     TARGET_NAME "${DAY}" OUTPUT_NAME "${DAY}.exe"
     SOURCE_FILES ${ADVENT_SOURCES}
