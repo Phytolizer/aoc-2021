@@ -40,11 +40,13 @@ int main(int argc, char** argv)
   UErrorCode errorCode = U_ZERO_ERROR;
   u_strFromUTF8(unicodeInput, (int32_t)inputText_size, &unicodeInputSize, (const char*)inputText,
                 (int32_t)inputText_size, &errorCode);
-  if (errorCode != U_ZERO_ERROR)
+  if (errorCode != U_ZERO_ERROR && errorCode != U_STRING_NOT_TERMINATED_WARNING)
   {
     fprintf(stderr, "%s\n", u_errorName(errorCode));
     return 1;
   }
+
+  free(unicodeInput);
   return 0;
 }
 
