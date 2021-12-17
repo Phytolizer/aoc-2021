@@ -37,3 +37,4 @@ configure_file(
   "AdventConfig.h.cin" "${CMAKE_CURRENT_BINARY_DIR}/AdventConfig.h"
 )
 advent("01")
+advent("02")
