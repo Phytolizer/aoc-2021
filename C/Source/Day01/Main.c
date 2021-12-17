@@ -65,10 +65,9 @@ int main(int argc, char** argv)
   UChar* unicodeInput = malloc((inputText_size + 1) * sizeof(UChar));
   int32_t unicodeInputSize;
   UErrorCode errorCode = U_ZERO_ERROR;
-  u_strFromUTF8(unicodeInput, (int32_t)inputText_size, &unicodeInputSize, (const char*)inputText,
+  u_strFromUTF8(unicodeInput, (int32_t)inputText_size + 1, &unicodeInputSize, (const char*)inputText,
                 (int32_t)inputText_size, &errorCode);
-  unicodeInput[inputText_size] = 0;
-  if (errorCode != U_ZERO_ERROR && errorCode != U_STRING_NOT_TERMINATED_WARNING)
+  if (errorCode != U_ZERO_ERROR)
   {
     fprintf(stderr, "%s\n", u_errorName(errorCode));
     return 1;
