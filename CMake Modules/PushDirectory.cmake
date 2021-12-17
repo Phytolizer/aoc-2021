@@ -24,9 +24,9 @@ macro(_push_directory_apply_to_target TARGET_NAME)
   target_include_directories(
     "${TARGET_NAME}" PUBLIC "${PUSH_DIRECTORY_INCLUDED_DIRECTORIES}"
   )
-  target_link_libraries(
-    "${TARGET_NAME}" PUBLIC "${PUSH_DIRECTORY_LINKED_LIBRARIES}"
-  )
+  foreach(LIBRARY "${PUSH_DIRECTORY_LINKED_LIBRARIES}")
+    target_link_libraries("${TARGET_NAME}" PUBLIC "${LIBRARY}")
+  endforeach()
   if(PUSH_DIRECTORY_OUTPUT_NAME)
     set_target_properties(
       "${TARGET_NAME}" PROPERTIES OUTPUT_NAME "${PUSH_DIRECTORY_OUTPUT_NAME}"

@@ -40,6 +40,16 @@
           "INCLUDED_DIRECTORIES": "*",
           "LINKED_LIBRARIES": "*"
         }
+      },
+      "advent": {
+        "flags": [
+          "EXTRA_SOURCES",
+          "EXTRA_LIBRARIES"
+        ],
+        "kwargs": {
+          "EXTRA_SOURCES": "*",
+          "EXTRA_LIBRARIES": "*"
+        }
       }
     },
     "_help_override_spec": [

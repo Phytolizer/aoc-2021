@@ -3,6 +3,12 @@
 #include <DayConfig.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+#include <unicode/umachine.h>
+#include <unicode/urename.h>
+#include <unicode/ustring.h>
+#include <unicode/utf8.h>
+#include <unicode/utypes.h>
 
 static void PrintHelp(void);
 static void PrintVersion(void);
@@ -27,6 +33,17 @@ int main(int argc, char** argv)
     default:
       assert(false && "unrecognized command");
     }
+  }
+
+  UChar* unicodeInput = malloc(inputText_size * sizeof(UChar));
+  int32_t unicodeInputSize;
+  UErrorCode errorCode;
+  u_strFromUTF8(unicodeInput, (int32_t)inputText_size, &unicodeInputSize, (const char*)inputText,
+                (int32_t)inputText_size, &errorCode);
+  if (errorCode != U_ZERO_ERROR)
+  {
+    fprintf(stderr, "%s\n", u_errorName(errorCode));
+    return 1;
   }
   return 0;
 }
