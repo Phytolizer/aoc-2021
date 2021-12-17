@@ -38,3 +38,4 @@ configure_file(
 )
 advent("01")
 advent("02")
+advent("03")

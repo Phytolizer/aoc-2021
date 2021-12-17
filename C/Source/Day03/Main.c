@@ -7,19 +7,6 @@
 static void PrintHelp(void);
 static void PrintVersion(void);
 
-typedef struct
-{
-  long x;
-  long y;
-} Part1;
-
-typedef struct
-{
-  long x;
-  long y;
-  long aim;
-} Part2;
-
 int main(int argc, char** argv)
 {
   CommandLineCommand command;
@@ -37,7 +24,7 @@ int main(int argc, char** argv)
       PrintVersion();
       return 0;
     default:
-      fprintf(stderr, "Unrecognized command\n");
+      fprintf(stderr, "Unknown command\n");
       return 2;
     }
   }
@@ -53,53 +40,19 @@ int main(int argc, char** argv)
     return 3;
   }
 
-  Part1 part1 = {0};
-  Part2 part2 = {0};
-
-  UChar* saveptr = NULL;
-  U_STRING_DECL(delim, "\r\n", 2);
-  for (UChar* iter = u_strtok_r(unicodeInput, delim, &saveptr); iter != NULL; iter = u_strtok_r(NULL, delim, &saveptr))
-  {
-    int delta = 0;
-    if (u_sscanf(iter, "forward %d", &delta) == 1)
-    {
-      part1.x += delta;
-      part2.x += delta;
-      part2.y += part2.aim * delta;
-    }
-    else if (u_sscanf(iter, "up %d", &delta) == 1)
-    {
-      part1.y -= delta;
-      part2.aim -= delta;
-    }
-    else if (u_sscanf(iter, "down %d", &delta) == 1)
-    {
-      part1.y += delta;
-      part2.aim += delta;
-    }
-    else
-    {
-      u_printf("weird input line: %S\n", iter);
-    }
-  }
-
-  printf("%ld\n", part1.x * part1.y);
-  printf("%ld\n", part2.x * part2.y);
-
   free(unicodeInput);
-  return 0;
 }
 
-void PrintHelp(void)
+static void PrintHelp(void)
 {
   PrintVersion();
   printf("Usage: %s [options]\n", ADVENT_DAY_NAME);
   puts("Options:");
-  puts(" -h, --help    Print this help message");
-  puts(" -V, --version Print the program version");
+  puts(" -h,--help    Print this help message");
+  puts(" -V,--version Print the program version");
 }
 
-void PrintVersion(void)
+static void PrintVersion(void)
 {
-  printf("Advent of Code %s v%s\n", ADVENT_DAY_NAME, PROJECT_VERSION);
+  printf("%s v%s\n", ADVENT_DAY_NAME, PROJECT_VERSION);
 }
