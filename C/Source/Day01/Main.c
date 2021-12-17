@@ -2,6 +2,7 @@
 #include <Advent/Advent.h>
 #include <DayConfig.h>
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <unicode/umachine.h>
@@ -13,6 +14,13 @@
 
 static void PrintHelp(void);
 static void PrintVersion(void);
+
+typedef struct
+{
+  int prevValue;
+  bool prevValuePresent;
+  int count;
+} Part1;
 
 int main(int argc, char** argv)
 {
@@ -51,22 +59,22 @@ int main(int argc, char** argv)
   UChar* saveptr;
   U_STRING_DECL(delim, "\n", 1);
   U_STRING_INIT(delim, "\n", 1);
-  int prevValue = -1;
-  int count = 0;
+  Part1 part1 = {0};
   for (UChar* iter = u_strtok_r(unicodeInput, delim, &saveptr); iter != NULL; iter = u_strtok_r(NULL, delim, &saveptr))
   {
     int value;
     if (u_sscanf(iter, "%d", &value) == 1)
     {
-      if (value > prevValue && prevValue != -1)
+      if (value > part1.prevValue && part1.prevValuePresent)
       {
-        ++count;
+        ++part1.count;
       }
-      prevValue = value;
+      part1.prevValuePresent = true;
+      part1.prevValue = value;
     }
   }
 
-  printf("%d\n", count);
+  printf("%d\n", part1.count);
 
   free(unicodeInput);
   return 0;
