@@ -76,7 +76,6 @@ int main(int argc, char** argv)
 
   UChar* saveptr;
   U_STRING_DECL(delim, "\n", 1);
-  U_STRING_INIT(delim, "\n", 1);
   Part1 part1 = {0};
   Part2 part2 = PART2_INIT;
   for (UChar* iter = u_strtok_r(unicodeInput, delim, &saveptr); iter != NULL; iter = u_strtok_r(NULL, delim, &saveptr))
