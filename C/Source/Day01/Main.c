@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     }
   }
 
-  UChar* unicodeInput = malloc(inputText_size * sizeof(UChar));
+  UChar* unicodeInput = malloc((inputText_size + 1) * sizeof(UChar));
   int32_t unicodeInputSize;
   UErrorCode errorCode = U_ZERO_ERROR;
   u_strFromUTF8(unicodeInput, (int32_t)inputText_size, &unicodeInputSize, (const char*)inputText,
