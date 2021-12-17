@@ -22,6 +22,24 @@ typedef struct
   int count;
 } Part1;
 
+typedef struct
+{
+  int prevSum;
+  int window[3];
+  bool buildingWindow;
+  int buildIndex;
+  int count;
+} Part2;
+
+#define PART2_INIT                                                                                                     \
+  ((Part2){                                                                                                            \
+      .prevSum = 0,                                                                                                    \
+      .window = {0},                                                                                                   \
+      .buildingWindow = true,                                                                                          \
+      .buildIndex = 0,                                                                                                 \
+      .count = 0,                                                                                                      \
+  })
+
 int main(int argc, char** argv)
 {
   CommandLineCommand command;
@@ -60,6 +78,7 @@ int main(int argc, char** argv)
   U_STRING_DECL(delim, "\n", 1);
   U_STRING_INIT(delim, "\n", 1);
   Part1 part1 = {0};
+  Part2 part2 = PART2_INIT;
   for (UChar* iter = u_strtok_r(unicodeInput, delim, &saveptr); iter != NULL; iter = u_strtok_r(NULL, delim, &saveptr))
   {
     int value;
@@ -71,10 +90,33 @@ int main(int argc, char** argv)
       }
       part1.prevValuePresent = true;
       part1.prevValue = value;
+      if (part2.buildingWindow)
+      {
+        part2.window[part2.buildIndex++] = value;
+        if (part2.buildIndex == 3)
+        {
+          part2.buildingWindow = false;
+          part2.prevSum = part2.window[0] + part2.window[1] + part2.window[2];
+        }
+      }
+      else
+      {
+        int prevSum = part2.prevSum;
+        part2.prevSum -= part2.window[0];
+        part2.window[0] = part2.window[1];
+        part2.window[1] = part2.window[2];
+        part2.window[2] = value;
+        part2.prevSum += value;
+        if (part2.prevSum > prevSum)
+        {
+          ++part2.count;
+        }
+      }
     }
   }
 
   printf("%d\n", part1.count);
+  printf("%d\n", part2.count);
 
   free(unicodeInput);
   return 0;
