@@ -118,12 +118,6 @@ int main(int argc, char** argv)
     }
   }
 
-  for (size_t i = 0; i < m; ++i)
-  {
-    free(matrix[i]);
-  }
-  free(matrix);
-
   // calculate!
   size_t count[2];
   uint64_t gamma = 0;
@@ -143,6 +137,11 @@ int main(int argc, char** argv)
 
   printf("%lu\n", gamma * epsilon);
 
+  for (size_t i = 0; i < m; ++i)
+  {
+    free(matrix[i]);
+  }
+  free(matrix);
   for (size_t i = 0; i < n; ++i)
   {
     free(transposed[i]);
