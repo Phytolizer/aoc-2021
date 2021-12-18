@@ -1,17 +1,13 @@
 #include <Advent/Advent.h>
 #include <DayConfig.h>
 #include <Input.h>
+#include <cblas.h>
 #include <string.h>
 #include <unicode/ustdio.h>
 #include <unicode/ustring.h>
 
 static void PrintHelp(void);
 static void PrintVersion(void);
-
-typedef struct
-{
-  size_t c[2];
-} Count;
 
 int main(int argc, char** argv)
 {
@@ -46,13 +42,37 @@ int main(int argc, char** argv)
     return 3;
   }
 
-  Count* counts = NULL;
+  char** matrix = NULL;
+  size_t m = 0;
+  size_t n = 0;
+  size_t cap = 0;
+  size_t rowCap = 0;
+
   size_t width = 0;
 
   U_STRING_DECL(delim, "\r\n", 2);
   UChar* saveptr;
   for (UChar* iter = u_strtok_r(unicodeInput, delim, &saveptr); iter != NULL; iter = u_strtok_r(NULL, delim, &saveptr))
   {
+    if (m == cap)
+    {
+      cap = cap ? cap * 2 : 1;
+      char** newMatrix = realloc(matrix, cap * sizeof(char*));
+      if (newMatrix == NULL)
+      {
+        printf("Memory allocation failure\n");
+        return 4;
+      }
+      matrix = newMatrix;
+      memset(&matrix[m], 0, (cap - m) * sizeof(char*));
+    }
+    char* row = malloc(rowCap * sizeof(char));
+    if (row == NULL)
+    {
+      printf("Memory allocation failure\n");
+      return 4;
+    }
+    matrix[m] = row;
     size_t i = 0;
     while (true)
     {
@@ -64,36 +84,70 @@ int main(int argc, char** argv)
       }
       if (ci == '0' || ci == '1')
       {
-        if (width < i || counts == NULL)
+        if (i > n)
         {
-          Count* newCounts = realloc(counts, sizeof(Count) * (i + 1));
-          if (newCounts == NULL)
+          if (n == rowCap)
           {
-            fprintf(stderr, "Memory allocation failure\n");
-            return 4;
+            rowCap = rowCap ? rowCap * 2 : 1;
+            for (size_t i = 0; i < m; i++)
+            {
+              char* row = realloc(matrix[i], rowCap * sizeof(char));
+              if (row == NULL)
+              {
+                printf("Memory allocation failure\n");
+                return 4;
+              }
+              matrix[i] = row;
+            }
           }
-          counts = newCounts;
-          memset(&counts[i], 0, sizeof(Count));
-          width = i;
+          ++n;
         }
-        counts[i].c[ci - '0']++;
+        matrix[m][i - 1] = (char)ci;
       }
+    }
+    ++m;
+  }
+
+  char** transposed = malloc(n * sizeof(char*));
+  for (size_t i = 0; i < n; ++i)
+  {
+    transposed[i] = malloc(m * sizeof(char));
+    for (size_t j = 0; j < m; ++j)
+    {
+      transposed[i][j] = matrix[j][i];
     }
   }
 
+  for (size_t i = 0; i < m; ++i)
+  {
+    free(matrix[i]);
+  }
+  free(matrix);
+
+  // calculate!
+  size_t count[2];
   uint64_t gamma = 0;
   uint64_t epsilon = 0;
-  for (size_t i = 0; i < width; ++i)
+  for (size_t i = 0; i < n; ++i)
   {
+    memset(count, 0, sizeof(count));
+    for (size_t j = 0; j < m; ++j)
+    {
+      count[transposed[i][j] - '0']++;
+    }
     gamma <<= 1;
-    gamma |= counts[i].c[1] > counts[i].c[0];
-    printf("%lx\n", gamma);
+    gamma |= count[1] > count[0];
     epsilon <<= 1;
-    epsilon |= !(gamma & 1);
+    epsilon |= count[0] > count[1];
   }
 
   printf("%lu\n", gamma * epsilon);
 
+  for (size_t i = 0; i < n; ++i)
+  {
+    free(transposed[i]);
+  }
+  free(transposed);
   free(unicodeInput);
 }
 
