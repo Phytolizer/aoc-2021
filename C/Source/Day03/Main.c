@@ -119,20 +119,23 @@ int main(int argc, char** argv)
   }
 
   // calculate!
-  size_t count[2];
+  size_t** counts = malloc(n * sizeof(size_t*));
   uint64_t gamma = 0;
   uint64_t epsilon = 0;
   for (size_t i = 0; i < n; ++i)
   {
-    memset(count, 0, sizeof(count));
+    counts[i] = calloc(2, sizeof(size_t));
     for (size_t j = 0; j < m; ++j)
     {
-      count[transposed[i][j] - '0']++;
+      // NIT: This assumes that the matrix is a rectangle!
+      // If there are ANY missing elements, this will likely segfault due to
+      // out-of-bounds array access.
+      counts[i][transposed[i][j] - '0']++;
     }
     gamma <<= 1;
-    gamma |= count[1] > count[0];
+    gamma |= counts[i][1] > counts[i][0];
     epsilon <<= 1;
-    epsilon |= count[0] > count[1];
+    epsilon |= counts[i][0] > counts[i][1];
   }
 
   printf("%lu\n", gamma * epsilon);
@@ -145,8 +148,10 @@ int main(int argc, char** argv)
   for (size_t i = 0; i < n; ++i)
   {
     free(transposed[i]);
+    free(counts[i]);
   }
   free(transposed);
+  free(counts);
   free(unicodeInput);
 }
 
