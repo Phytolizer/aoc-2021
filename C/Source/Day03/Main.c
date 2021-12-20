@@ -2,12 +2,22 @@
 #include <DayConfig.h>
 #include <Input.h>
 #include <cblas.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unicode/ustdio.h>
 #include <unicode/ustring.h>
 
+enum
+{
+  OXY = 0,
+  CO2,
+};
+
 static void PrintHelp(void);
 static void PrintVersion(void);
+static void PrintBinArray(const char* array, size_t count);
+static uint64_t BinToI64(const char* bin, size_t count);
 
 int main(int argc, char** argv)
 {
@@ -140,6 +150,75 @@ int main(int argc, char** argv)
 
   printf("%lu\n", gamma * epsilon);
 
+  bool** keep = malloc(m * sizeof(bool*));
+  for (size_t i = 0; i < m; ++i)
+  {
+    keep[i] = malloc(2 * sizeof(bool));
+    keep[i][OXY] = true;
+    keep[i][CO2] = true;
+  }
+  size_t nkeep[2] = {m, m};
+  for (size_t i = 0; i < n && (nkeep[OXY] > 1 || nkeep[CO2] > 1); ++i)
+  {
+    int keepOxy = counts[i][1] > counts[i][0];
+    int keepBoth = counts[i][1] == counts[i][0];
+    printf("filtering on [%zu]... (oxy keep %c, co2 keep %c)%s ", i, keepOxy ? '1' : '0', keepOxy ? '0' : '1',
+           keepBoth ? " (keep both)" : "");
+    printf("to filter: %zu oxy, %zu co2\n", nkeep[OXY], nkeep[CO2]);
+    for (size_t j = 0; j < m; ++j)
+    {
+      if (transposed[i][j] - '0' != keepOxy)
+      {
+        if (!keepBoth && keep[j][OXY] && nkeep[OXY] > 1)
+        {
+          printf("  oxy: discard [%zu]", j);
+          PrintBinArray(matrix[j], n);
+          printf("\n");
+          keep[j][OXY] = false;
+          --nkeep[OXY];
+        }
+      }
+      else
+      {
+        if (!keepBoth && keep[j][CO2] && nkeep[CO2] > 1)
+        {
+          printf("  co2: discard [%zu]", j);
+          PrintBinArray(matrix[j], n);
+          printf("\n");
+          keep[j][CO2] = false;
+          --nkeep[CO2];
+        }
+      }
+    }
+  }
+
+  printf("Filtering complete: %zuxOXY, %zuxCO2\n", nkeep[OXY], nkeep[CO2]);
+  size_t oxy = 0;
+  size_t co2 = 0;
+  for (size_t i = 0; i < m; ++i)
+  {
+    if (keep[i][OXY])
+    {
+      oxy = i;
+    }
+    if (keep[i][CO2])
+    {
+      co2 = i;
+    }
+  }
+
+  printf("OXY: index %lu\n", oxy);
+  printf("OXY: ");
+  PrintBinArray(matrix[oxy], n);
+  printf(" (as array)\n");
+  printf("OXY: %lu (as decimal)\n", BinToI64(matrix[oxy], n));
+  printf("CO2: index %lu\n", co2);
+  printf("CO2: ");
+  PrintBinArray(matrix[co2], n);
+  printf(" (as array)\n");
+  printf("CO2: %lu (as decimal)\n", BinToI64(matrix[co2], n));
+  printf("Part 2: %lu\n", BinToI64(matrix[oxy], n) * BinToI64(matrix[co2], n));
+
   for (size_t i = 0; i < m; ++i)
   {
     free(matrix[i]);
@@ -167,4 +246,22 @@ static void PrintHelp(void)
 static void PrintVersion(void)
 {
   printf("%s v%s\n", ADVENT_DAY_NAME, PROJECT_VERSION);
+}
+
+static void PrintBinArray(const char* array, size_t count)
+{
+  for (size_t i = 0; i < count; ++i)
+  {
+    printf("%c", array[i]);
+  }
+}
+
+static uint64_t BinToI64(const char* bin, size_t count)
+{
+  char* str = malloc(count + 1);
+  memcpy(str, bin, count);
+  str[count] = '\0';
+  uint64_t result = strtoul(str, NULL, 2);
+  free(str);
+  return result;
 }
