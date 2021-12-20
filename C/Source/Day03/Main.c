@@ -14,10 +14,15 @@ enum
   CO2,
 };
 
+typedef struct
+{
+  bool highlight;
+  size_t highlightWhich;
+} PrintBinArrayOptions;
+
 static void PrintHelp(void);
 static void PrintVersion(void);
-static void PrintBinArray(const char* array, size_t count);
-static void PrintBinArrayHighlight(const char* array, size_t count, size_t highlight);
+static void PrintBinArray(const char* array, size_t count, PrintBinArrayOptions options);
 static uint64_t BinToI64(const char* bin, size_t count);
 
 int main(int argc, char** argv)
@@ -173,7 +178,7 @@ int main(int argc, char** argv)
         if (!keepBoth && keep[j][OXY] && nkeep[OXY] > 1)
         {
           printf("  oxy: discard [%04zu]", j);
-          PrintBinArrayHighlight(matrix[j], n, i);
+          PrintBinArray(matrix[j], n, (PrintBinArrayOptions){.highlight = true, .highlightWhich = i});
           printf("\n");
           keep[j][OXY] = false;
           --nkeep[OXY];
@@ -184,7 +189,7 @@ int main(int argc, char** argv)
         if (!keepBoth && keep[j][CO2] && nkeep[CO2] > 1)
         {
           printf("  co2: discard [%04zu]", j);
-          PrintBinArrayHighlight(matrix[j], n, i);
+          PrintBinArray(matrix[j], n, (PrintBinArrayOptions){.highlight = true, .highlightWhich = i});
           printf("\n");
           keep[j][CO2] = false;
           --nkeep[CO2];
@@ -210,15 +215,21 @@ int main(int argc, char** argv)
 
   printf("OXY: index %lu\n", oxy);
   printf("OXY: ");
-  PrintBinArray(matrix[oxy], n);
+  PrintBinArray(matrix[oxy], n, (PrintBinArrayOptions){0});
   printf(" (as array)\n");
   printf("OXY: %lu (as decimal)\n", BinToI64(matrix[oxy], n));
   printf("CO2: index %lu\n", co2);
   printf("CO2: ");
-  PrintBinArray(matrix[co2], n);
+  PrintBinArray(matrix[co2], n, (PrintBinArrayOptions){0});
   printf(" (as array)\n");
   printf("CO2: %lu (as decimal)\n", BinToI64(matrix[co2], n));
   printf("Part 2: %lu\n", BinToI64(matrix[oxy], n) * BinToI64(matrix[co2], n));
+
+  for (size_t i = 0; i < m; ++i)
+  {
+    free(keep[i]);
+  }
+  free(keep);
 
   for (size_t i = 0; i < m; ++i)
   {
@@ -249,26 +260,18 @@ static void PrintVersion(void)
   printf("%s v%s\n", ADVENT_DAY_NAME, PROJECT_VERSION);
 }
 
-static void PrintBinArray(const char* array, size_t count)
+static void PrintBinArray(const char* array, size_t count, PrintBinArrayOptions options)
 {
   for (size_t i = 0; i < count; ++i)
   {
-    printf("%c", array[i]);
-  }
-}
-
-static void PrintBinArrayHighlight(const char* array, size_t count, size_t highlight)
-{
-  for (size_t i = 0; i < count; ++i)
-  {
-    if (i == highlight)
+    if (options.highlight && options.highlightWhich == i)
     {
-      printf("{");
+      putchar('{');
     }
-    printf("%c", array[i]);
-    if (i == highlight)
+    putchar(array[i]);
+    if (options.highlight && options.highlightWhich == i)
     {
-      printf("}");
+      putchar('}');
     }
   }
 }
