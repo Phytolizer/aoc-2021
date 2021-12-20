@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 const INPUT: &str = include_str!("../Input.txt");
 
 fn main() {
@@ -17,4 +19,19 @@ fn main() {
     }
 
     println!("{}", count);
+
+    let sums = INPUT
+        .lines()
+        .filter_map(|line| line.parse::<usize>().ok())
+        .tuple_windows()
+        .map(|(a, b, c)| a + b + c)
+        .collect::<Vec<_>>();
+
+    println!(
+        "part 2: {}",
+        sums.iter()
+            .tuple_windows()
+            .map(|(a, b)| (b > a) as usize)
+            .sum::<usize>()
+    );
 }
