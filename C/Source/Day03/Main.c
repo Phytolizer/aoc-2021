@@ -17,6 +17,7 @@ enum
 static void PrintHelp(void);
 static void PrintVersion(void);
 static void PrintBinArray(const char* array, size_t count);
+static void PrintBinArrayHighlight(const char* array, size_t count, size_t highlight);
 static uint64_t BinToI64(const char* bin, size_t count);
 
 int main(int argc, char** argv)
@@ -171,8 +172,8 @@ int main(int argc, char** argv)
       {
         if (!keepBoth && keep[j][OXY] && nkeep[OXY] > 1)
         {
-          printf("  oxy: discard [%zu]", j);
-          PrintBinArray(matrix[j], n);
+          printf("  oxy: discard [%04zu]", j);
+          PrintBinArrayHighlight(matrix[j], n, i);
           printf("\n");
           keep[j][OXY] = false;
           --nkeep[OXY];
@@ -182,8 +183,8 @@ int main(int argc, char** argv)
       {
         if (!keepBoth && keep[j][CO2] && nkeep[CO2] > 1)
         {
-          printf("  co2: discard [%zu]", j);
-          PrintBinArray(matrix[j], n);
+          printf("  co2: discard [%04zu]", j);
+          PrintBinArrayHighlight(matrix[j], n, i);
           printf("\n");
           keep[j][CO2] = false;
           --nkeep[CO2];
@@ -253,6 +254,22 @@ static void PrintBinArray(const char* array, size_t count)
   for (size_t i = 0; i < count; ++i)
   {
     printf("%c", array[i]);
+  }
+}
+
+static void PrintBinArrayHighlight(const char* array, size_t count, size_t highlight)
+{
+  for (size_t i = 0; i < count; ++i)
+  {
+    if (i == highlight)
+    {
+      printf("{");
+    }
+    printf("%c", array[i]);
+    if (i == highlight)
+    {
+      printf("}");
+    }
   }
 }
 
