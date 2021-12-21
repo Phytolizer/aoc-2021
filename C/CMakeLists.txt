@@ -30,7 +30,7 @@ endfunction()
 
 push_directory_library(
   TARGET_NAME "Advent"
-  SOURCE_FILES "Advent.c"
+  SOURCE_FILES "Advent.c" "Hash.c"
   INCLUDED_DIRECTORIES "Include" "${CMAKE_CURRENT_BINARY_DIR}"
 )
 configure_file(
