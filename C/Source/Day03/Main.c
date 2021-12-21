@@ -247,6 +247,11 @@ int main(int argc, char** argv)
     free(keep[i]);
   }
   free(keep);
+  for (size_t i = 0; i < n; ++i)
+  {
+    free(p2counts[i]);
+  }
+  free(p2counts);
 
   for (size_t i = 0; i < m; ++i)
   {
