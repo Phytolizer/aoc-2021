@@ -3,6 +3,7 @@
 #include <DayConfig.h>
 #include <Input.h>
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <unicode/umachine.h>
 #include <unicode/ustdio.h>
@@ -17,11 +18,20 @@ VECTOR_IMPLEMENT(I64Vec, int64_t, VECTOR_DESTRUCTOR_NONE(I64Vec));
 
 typedef struct
 {
-  int64_t b[5 * 5];
+  int64_t value;
+  bool marked;
+} BingoBoardSlot;
+
+typedef struct
+{
+  BingoBoardSlot b[5 * 5];
+  bool won;
 } BingoBoard;
 
 VECTOR_DECLARE(BingoBoardVec, BingoBoard);
 VECTOR_IMPLEMENT(BingoBoardVec, BingoBoard, VECTOR_DESTRUCTOR_NONE(BingoBoardVec));
+
+bool BingoBoard_checkWin(BingoBoard* b);
 
 int main(int argc, char** argv)
 {
@@ -89,8 +99,8 @@ int main(int argc, char** argv)
          bingoLineStr = u_strtok_r(NULL, delim, &bingoSavePtr))
     {
       assert(i < 25);
-      assert(u_sscanf(bingoLineStr, "%d %d %d %d %d", &board.b[i], &board.b[i + 1], &board.b[i + 2], &board.b[i + 3],
-                      &board.b[i + 4]) == 5);
+      assert(u_sscanf(bingoLineStr, "%d %d %d %d %d", &board.b[i].value, &board.b[i + 1].value, &board.b[i + 2].value,
+                      &board.b[i + 3].value, &board.b[i + 4].value) == 5);
       i += 5;
     }
     BingoBoardVec_push(&boards, board);
@@ -98,6 +108,69 @@ int main(int argc, char** argv)
   }
 
   // End input parsing
+  size_t myBoard = SIZE_MAX;
+  size_t winningCallIdx = SIZE_MAX;
+  size_t nwon = 0;
+  size_t lastBoard = SIZE_MAX;
+  size_t lastWinningCallIdx = SIZE_MAX;
+
+  for (size_t i = 0; i < draws.length; ++i)
+  {
+    for (size_t j = 0; j < boards.length; ++j)
+    {
+      // mark board
+      if (!boards.data[j].won)
+      {
+        for (size_t k = 0; k < 25; ++k)
+        {
+          if (boards.data[j].b[k].value == draws.data[i])
+          {
+            boards.data[j].b[k].marked = true;
+          }
+        }
+
+        if (BingoBoard_checkWin(&boards.data[j]))
+        {
+          boards.data[j].won = true;
+          ++nwon;
+          if (nwon == boards.length)
+          {
+            printf("Last winner is %zu, won on draw %zu (%ld)\n", j, i, draws.data[i]);
+            lastBoard = j;
+            lastWinningCallIdx = i;
+          }
+          if (myBoard == SIZE_MAX)
+          {
+            printf("Selected board %zu, won on draw %zu (%ld)\n", j, i, draws.data[i]);
+            myBoard = j;
+            winningCallIdx = i;
+          }
+        }
+      }
+    }
+  }
+
+  int64_t unmarkedSum = 0;
+  for (size_t i = 0; i < 25; ++i)
+  {
+    if (!boards.data[myBoard].b[i].marked)
+    {
+      unmarkedSum += boards.data[myBoard].b[i].value;
+    }
+  }
+
+  printf("Part 1: %ld\n", unmarkedSum * draws.data[winningCallIdx]);
+
+  unmarkedSum = 0;
+  for (size_t i = 0; i < 25; ++i)
+  {
+    if (!boards.data[lastBoard].b[i].marked)
+    {
+      unmarkedSum += boards.data[lastBoard].b[i].value;
+    }
+  }
+
+  printf("Part 2: %ld\n", unmarkedSum * draws.data[lastWinningCallIdx]);
 
   BingoBoardVec_deinit(&boards);
   I64Vec_deinit(&draws);
@@ -116,4 +189,44 @@ void PrintHelp(void)
 void PrintVersion(void)
 {
   printf("%s v%s\n", ADVENT_DAY_NAME, PROJECT_VERSION);
+}
+
+bool BingoBoard_checkWin(BingoBoard* b)
+{
+  // check vertical lines
+  for (size_t i = 0; i < 5; ++i)
+  {
+    bool thisLineWin = true;
+    for (size_t j = i; j < 25; j += 5)
+    {
+      if (!b->b[j].marked)
+      {
+        thisLineWin = false;
+        break;
+      }
+    }
+    if (thisLineWin)
+    {
+      return true;
+    }
+  }
+
+  // check horizontal lines
+  for (size_t i = 0; i < 25; i += 5)
+  {
+    bool thisLineWin = true;
+    for (size_t j = i; j < i + 5; ++j)
+    {
+      if (!b->b[j].marked)
+      {
+        thisLineWin = false;
+        break;
+      }
+    }
+    if (thisLineWin)
+    {
+      return true;
+    }
+  }
+  return false;
 }
