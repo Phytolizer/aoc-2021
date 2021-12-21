@@ -163,56 +163,50 @@ int main(int argc, char** argv)
     keep[i][OXY] = true;
     keep[i][CO2] = true;
   }
-  size_t nkeep[2] = {m, m};
-  for (size_t i = 0; i < n && (nkeep[OXY] > 1 || nkeep[CO2] > 1); ++i)
-  {
-    int keepOxy = counts[i][1] > counts[i][0];
-    int keepBoth = counts[i][1] == counts[i][0];
-    printf("filtering on [%zu]... (oxy keep %c, co2 keep %c)%s ", i, keepOxy ? '1' : '0', keepOxy ? '0' : '1',
-           keepBoth ? " (keep both)" : "");
-    printf("to filter: %zu oxy, %zu co2\n", nkeep[OXY], nkeep[CO2]);
-    for (size_t j = 0; j < m; ++j)
-    {
-      if (transposed[i][j] - '0' != keepOxy)
-      {
-        if (!keepBoth && keep[j][OXY] && nkeep[OXY] > 1)
-        {
-          printf("  oxy: discard [%04zu]", j);
-          PrintBinArray(matrix[j], n, (PrintBinArrayOptions){.highlight = true, .highlightWhich = i});
-          printf("\n");
-          keep[j][OXY] = false;
-          --nkeep[OXY];
-        }
-      }
-      else
-      {
-        if (!keepBoth && keep[j][CO2] && nkeep[CO2] > 1)
-        {
-          printf("  co2: discard [%04zu]", j);
-          PrintBinArray(matrix[j], n, (PrintBinArrayOptions){.highlight = true, .highlightWhich = i});
-          printf("\n");
-          keep[j][CO2] = false;
-          --nkeep[CO2];
-        }
-      }
-    }
-  }
-
-  printf("Filtering complete: %zuxOXY, %zuxCO2\n", nkeep[OXY], nkeep[CO2]);
   size_t oxy = 0;
   size_t co2 = 0;
-  for (size_t i = 0; i < m; ++i)
+  for (size_t i = 0; i < n; ++i)
   {
-    if (keep[i][OXY])
+    bool selector = counts[i][0] > counts[i][1];
+    // filter out 1's for OXY, 0's for CO2
+    size_t keptOxy = SIZE_MAX;
+    size_t keptCo2 = SIZE_MAX;
+    for (size_t j = 0; j < m; ++j)
     {
-      oxy = i;
+      if (keep[j][OXY])
+      {
+        if (transposed[i][j] == (selector ? '1' : '0'))
+        {
+          keep[j][OXY] = false;
+        }
+        else if (keptOxy == SIZE_MAX)
+        {
+          keptOxy = j;
+        }
+      }
+      if (keep[j][CO2])
+      {
+        if (transposed[i][j] == (selector ? '0' : '1'))
+        {
+          keep[j][CO2] = false;
+        }
+        else if (keptCo2 == SIZE_MAX)
+        {
+          keptCo2 = j;
+        }
+      }
     }
-    if (keep[i][CO2])
+    if (keptOxy != SIZE_MAX)
     {
-      co2 = i;
+      oxy = keptOxy;
+    }
+    if (keptCo2 != SIZE_MAX)
+    {
+      co2 = keptCo2;
     }
   }
 
+  printf("Filtering complete\n");
   printf("OXY: index %lu\n", oxy);
   printf("OXY: ");
   PrintBinArray(matrix[oxy], n, (PrintBinArrayOptions){0});
