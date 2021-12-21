@@ -21,3 +21,4 @@ typedef enum
 } CommandLineCommand;
 
 bool NS_(ParseCommandLine)(int argc, char** argv, CommandLineCommand* outCommand);
+void* NS_(MemDup)(void* ptr, size_t len);

@@ -2,6 +2,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static const struct option longOptions[] = {
     {"help", no_argument, 0, 'h'},
@@ -30,5 +31,12 @@ bool NS_(ParseCommandLine)(int argc, char** argv, CommandLineCommand* outCommand
       break;
     }
   }
+  return result;
+}
+
+void* NS_(MemDup)(void* ptr, size_t len)
+{
+  void* result = malloc(len);
+  memcpy(result, ptr, len);
   return result;
 }
