@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+
 #define VECTOR_PROTOTYPES_(VectorType, DataType)                                                                       \
   void VectorType##_init(VectorType* v);                                                                               \
   void VectorType##_deinit(VectorType* v);                                                                             \
