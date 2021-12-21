@@ -77,6 +77,12 @@ void PointMap_populate(PointMap* map, LineSegmentVec* segs, bool override)
         segs->data[i].c[0].x = segs->data[i].c[1].x;
         segs->data[i].c[1].x = temp;
       }
+      if (segs->data[i].c[0].y > segs->data[i].c[1].y)
+      {
+        int temp = segs->data[i].c[0].y;
+        segs->data[i].c[0].y = segs->data[i].c[1].y;
+        segs->data[i].c[1].y = temp;
+      }
       for (int x = segs->data[i].c[0].x; x <= segs->data[i].c[1].x; ++x)
       {
         int y = IntLerp(segs->data[i].c[0].y, segs->data[i].c[0].x, x);
