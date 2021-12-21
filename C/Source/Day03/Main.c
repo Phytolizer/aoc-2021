@@ -16,6 +16,12 @@ enum
 
 typedef struct
 {
+  size_t oxy;
+  size_t co2;
+} Part2Count;
+
+typedef struct
+{
   bool highlight;
   size_t highlightWhich;
 } PrintBinArrayOptions;
@@ -156,6 +162,11 @@ int main(int argc, char** argv)
 
   printf("%lu\n", gamma * epsilon);
 
+  Part2Count** p2counts = malloc(n * sizeof(Part2Count*));
+  for (size_t i = 0; i < n; ++i)
+  {
+    p2counts[i] = calloc(2, sizeof(Part2Count));
+  }
   bool** keep = malloc(m * sizeof(bool*));
   for (size_t i = 0; i < m; ++i)
   {
@@ -167,7 +178,19 @@ int main(int argc, char** argv)
   size_t co2 = 0;
   for (size_t i = 0; i < n; ++i)
   {
-    bool selector = counts[i][0] > counts[i][1];
+    memset(p2counts[i], 0, 2 * sizeof(Part2Count));
+    for (size_t j = 0; j < m; ++j)
+    {
+      if (keep[j][OXY])
+      {
+        p2counts[i][transposed[i][j] - '0'].oxy++;
+      }
+      if (keep[j][CO2])
+      {
+        p2counts[i][transposed[i][j] - '0'].co2++;
+      }
+    }
+    bool selector = p2counts[i][0].oxy > p2counts[i][1].oxy;
     // filter out 1's for OXY, 0's for CO2
     size_t keptOxy = SIZE_MAX;
     size_t keptCo2 = SIZE_MAX;
@@ -175,7 +198,7 @@ int main(int argc, char** argv)
     {
       if (keep[j][OXY])
       {
-        if (transposed[i][j] == (selector ? '1' : '0'))
+        if (transposed[i][j] == (p2counts[i][0].oxy > p2counts[i][1].oxy ? '1' : '0'))
         {
           keep[j][OXY] = false;
         }
@@ -186,7 +209,7 @@ int main(int argc, char** argv)
       }
       if (keep[j][CO2])
       {
-        if (transposed[i][j] == (selector ? '0' : '1'))
+        if (transposed[i][j] == (p2counts[i][0].co2 > p2counts[i][1].co2 ? '0' : '1'))
         {
           keep[j][CO2] = false;
         }
