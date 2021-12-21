@@ -34,6 +34,71 @@ VECTOR_IMPLEMENT(LineSegmentVec, LineSegment, VECTOR_DESTRUCTOR_NONE(LineSegment
 HASH_DECLARE(PointMap, size_t);
 HASH_IMPLEMENT(PointMap, size_t, HASH_DESTRUCTOR_KEY(PointMap, free), HASH_MAX_LOAD_DEFAULT);
 
+int IntLerp(int a, int min, int value)
+{
+  return a + value - min;
+}
+
+void PointMap_populate(PointMap* map, LineSegmentVec* segs, bool override)
+{
+  for (size_t i = 0; i < segs->length; ++i)
+  {
+    if (segs->data[i].c[0].x == segs->data[i].c[1].x)
+    {
+      if (segs->data[i].c[0].y > segs->data[i].c[1].y)
+      {
+        int temp = segs->data[i].c[0].y;
+        segs->data[i].c[0].y = segs->data[i].c[1].y;
+        segs->data[i].c[1].y = temp;
+      }
+      for (int y = segs->data[i].c[0].y; y <= segs->data[i].c[1].y; ++y)
+      {
+        PointMap_key k = {
+            .key = Coordinate_new(segs->data[i].c[0].x, y),
+            .len = sizeof(Coordinate),
+        };
+        size_t* v = PointMap_lookup(map, k);
+        if (v == NULL)
+        {
+          PointMap_insert(map, k, 1);
+        }
+        else
+        {
+          free(k.key);
+          (*v)++;
+        }
+      }
+    }
+    else if (segs->data[i].c[0].y == segs->data[i].c[1].y || override)
+    {
+      if (segs->data[i].c[0].x > segs->data[i].c[1].x)
+      {
+        int temp = segs->data[i].c[0].x;
+        segs->data[i].c[0].x = segs->data[i].c[1].x;
+        segs->data[i].c[1].x = temp;
+      }
+      for (int x = segs->data[i].c[0].x; x <= segs->data[i].c[1].x; ++x)
+      {
+        int y = IntLerp(segs->data[i].c[0].y, segs->data[i].c[0].x, x);
+        PointMap_key k = {
+            .key = Coordinate_new(x, segs->data[i].c[0].y),
+            .len = sizeof(Coordinate),
+        };
+        size_t* v = PointMap_lookup(map, k);
+        if (v == NULL)
+        {
+          PointMap_insert(map, k, 1);
+        }
+        else
+        {
+          free(k.key);
+          (*v)++;
+        }
+      }
+    }
+  }
+}
+
 int main(int argc, char** argv)
 {
   CommandLineCommand command;
@@ -83,61 +148,7 @@ int main(int argc, char** argv)
   // Part 1. Only consider H/V lines.
   PointMap p1map;
   PointMap_init(&p1map);
-  for (size_t i = 0; i < segs.length; ++i)
-  {
-    if (segs.data[i].c[0].x == segs.data[i].c[1].x)
-    {
-      if (segs.data[i].c[0].y > segs.data[i].c[1].y)
-      {
-        int temp = segs.data[i].c[0].y;
-        segs.data[i].c[0].y = segs.data[i].c[1].y;
-        segs.data[i].c[1].y = temp;
-      }
-      for (int y = segs.data[i].c[0].y; y <= segs.data[i].c[1].y; ++y)
-      {
-        PointMap_key k = {
-            .key = Coordinate_new(segs.data[i].c[0].x, y),
-            .len = sizeof(Coordinate),
-        };
-        size_t* v = PointMap_lookup(&p1map, k);
-        if (v == NULL)
-        {
-          PointMap_insert(&p1map, k, 1);
-        }
-        else
-        {
-          free(k.key);
-          (*v)++;
-        }
-      }
-    }
-    else if (segs.data[i].c[0].y == segs.data[i].c[1].y)
-    {
-      if (segs.data[i].c[0].x > segs.data[i].c[1].x)
-      {
-        int temp = segs.data[i].c[0].x;
-        segs.data[i].c[0].x = segs.data[i].c[1].x;
-        segs.data[i].c[1].x = temp;
-      }
-      for (int x = segs.data[i].c[0].x; x <= segs.data[i].c[1].x; ++x)
-      {
-        PointMap_key k = {
-            .key = Coordinate_new(x, segs.data[i].c[0].y),
-            .len = sizeof(Coordinate),
-        };
-        size_t* v = PointMap_lookup(&p1map, k);
-        if (v == NULL)
-        {
-          PointMap_insert(&p1map, k, 1);
-        }
-        else
-        {
-          free(k.key);
-          (*v)++;
-        }
-      }
-    }
-  }
+  PointMap_populate(&p1map, &segs, false);
 
   size_t count = 0;
   for (size_t i = 0; i < p1map.capacity; ++i)
@@ -147,10 +158,24 @@ int main(int argc, char** argv)
       ++count;
     }
   }
+  PointMap_deinit(&p1map);
+
+  PointMap p2map;
+  PointMap_init(&p2map);
+  PointMap_populate(&p2map, &segs, true);
+  size_t count2 = 0;
+  for (size_t i = 0; i < p2map.capacity; ++i)
+  {
+    if (p2map.buckets[i].present && p2map.buckets[i].value > 1)
+    {
+      ++count2;
+    }
+  }
+  PointMap_deinit(&p2map);
 
   printf("Part 1: %zu\n", count);
+  printf("Part 2: %zu\n", count2);
 
-  PointMap_deinit(&p1map);
   LineSegmentVec_deinit(&segs);
   free(unicodeInput);
   return 0;
