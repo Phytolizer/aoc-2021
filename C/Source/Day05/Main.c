@@ -106,6 +106,7 @@ int main(int argc, char** argv)
         }
         else
         {
+          free(k.key);
           (*v)++;
         }
       }
@@ -131,6 +132,7 @@ int main(int argc, char** argv)
         }
         else
         {
+          free(k.key);
           (*v)++;
         }
       }
@@ -148,6 +150,9 @@ int main(int argc, char** argv)
 
   printf("Part 1: %zu\n", count);
 
+  PointMap_deinit(&p1map);
+  LineSegmentVec_deinit(&segs);
+  free(unicodeInput);
   return 0;
 }
 

@@ -83,7 +83,7 @@ uint64_t Hash_FNV1a(const void* data, size_t len);
     static const HashType##_destructor_ dtor_ = Destructor;                                                            \
     if (dtor_.keyEnabled || dtor_.valueEnabled)                                                                        \
     {                                                                                                                  \
-      for (size_t i = 0; h->capacity; ++i)                                                                             \
+      for (size_t i = 0; i < h->capacity; ++i)                                                                         \
       {                                                                                                                \
         if (h->buckets[i].present)                                                                                     \
         {                                                                                                              \
