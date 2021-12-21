@@ -2,6 +2,7 @@
 #include <Advent/Vector.h>
 #include <DayConfig.h>
 #include <Input.h>
+#include <assert.h>
 #include <stdio.h>
 #include <unicode/umachine.h>
 #include <unicode/ustdio.h>
@@ -13,6 +14,14 @@ void PrintVersion(void);
 
 VECTOR_DECLARE(I64Vec, int64_t);
 VECTOR_IMPLEMENT(I64Vec, int64_t, VECTOR_DESTRUCTOR_NONE(I64Vec));
+
+typedef struct
+{
+  int64_t b[5 * 5];
+} BingoBoard;
+
+VECTOR_DECLARE(BingoBoardVec, BingoBoard);
+VECTOR_IMPLEMENT(BingoBoardVec, BingoBoard, VECTOR_DESTRUCTOR_NONE(BingoBoardVec));
 
 int main(int argc, char** argv)
 {
@@ -48,7 +57,7 @@ int main(int argc, char** argv)
   }
 
   UChar* mainptr;
-  U_STRING_DECL(delim, "\n\n", 2);
+  U_STRING_DECL(delim, "\r\n", 2);
   UChar* drawsStr = u_strtok_r(unicodeInput, delim, &mainptr);
 
   I64Vec draws;
@@ -65,6 +74,32 @@ int main(int argc, char** argv)
     }
   }
 
+  U_STRING_DECL(doubleNewlineDelim, "\n\n", 2);
+  BingoBoardVec boards;
+  BingoBoardVec_init(&boards);
+  UChar* bingoBoard = mainptr + 1;
+  for (UChar* doubleNewline = u_strstr(bingoBoard, doubleNewlineDelim); doubleNewline;
+       doubleNewline = u_strstr(doubleNewline + 2, doubleNewlineDelim))
+  {
+    *doubleNewline = 0;
+    BingoBoard board = {0};
+    UChar* bingoSavePtr;
+    size_t i = 0;
+    for (UChar* bingoLineStr = u_strtok_r(bingoBoard, delim, &bingoSavePtr); bingoLineStr;
+         bingoLineStr = u_strtok_r(NULL, delim, &bingoSavePtr))
+    {
+      assert(i < 25);
+      assert(u_sscanf(bingoLineStr, "%d %d %d %d %d", &board.b[i], &board.b[i + 1], &board.b[i + 2], &board.b[i + 3],
+                      &board.b[i + 4]) == 5);
+      i += 5;
+    }
+    BingoBoardVec_push(&boards, board);
+    bingoBoard = doubleNewline + 2;
+  }
+
+  // End input parsing
+
+  BingoBoardVec_deinit(&boards);
   I64Vec_deinit(&draws);
   free(unicodeInput);
   return 0;
