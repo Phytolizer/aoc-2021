@@ -166,6 +166,7 @@ int main(int argc, char** argv)
   }
   PointMap_deinit(&p1map);
 
+  // Part 2. Consider all lines, luckily they're 90 or 45 deg.
   PointMap p2map;
   PointMap_init(&p2map);
   PointMap_populate(&p2map, &segs, true);
@@ -177,13 +178,10 @@ int main(int argc, char** argv)
       ++count2;
     }
   }
-  PointMap_deinit(&p2map);
 
   printf("Part 1: %zu\n", count);
   printf("Part 2: %zu\n", count2);
 
-  LineSegmentVec_deinit(&segs);
-  free(unicodeInput);
   return 0;
 }
 

@@ -80,20 +80,10 @@ int main(int argc, char** argv)
     {
       cap = cap ? cap * 2 : 1;
       char** newMatrix = realloc(matrix, cap * sizeof(char*));
-      if (newMatrix == NULL)
-      {
-        printf("Memory allocation failure\n");
-        return 4;
-      }
       matrix = newMatrix;
       memset(&matrix[m], 0, (cap - m) * sizeof(char*));
     }
     char* row = malloc(rowCap * sizeof(char));
-    if (row == NULL)
-    {
-      printf("Memory allocation failure\n");
-      return 4;
-    }
     matrix[m] = row;
     size_t i = 0;
     while (true)
@@ -114,11 +104,6 @@ int main(int argc, char** argv)
             for (size_t i = 0; i < m; i++)
             {
               char* row = realloc(matrix[i], rowCap * sizeof(char));
-              if (row == NULL)
-              {
-                printf("Memory allocation failure\n");
-                return 4;
-              }
               matrix[i] = row;
             }
           }
