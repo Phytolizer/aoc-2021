@@ -142,7 +142,7 @@ uint64_t Hash_FNV1a(const void* data, size_t len);
   {                                                                                                                    \
     if (h->capacity == 0 || (double)h->bucketCount / h->capacity > MaxLoad)                                            \
     {                                                                                                                  \
-      HashType##_rehash_(h, h->capacity ? h->capacity * 2 : 1);                                                        \
+      HashType##_rehash_(h, h->capacity ? h->capacity * 2 : 8);                                                        \
     }                                                                                                                  \
     HashType##_bucket* bucket = HashType##_findBucket_(h->buckets, h->capacity, key);                                  \
     bucket->present = true;                                                                                            \
@@ -155,7 +155,7 @@ uint64_t Hash_FNV1a(const void* data, size_t len);
   ValueType* HashType##_lookup(HashType* h, HashType##_key key)                                                        \
   {                                                                                                                    \
     HashType##_bucket* bucket = HashType##_findBucket_(h->buckets, h->capacity, key);                                  \
-    if (!bucket->present)                                                                                              \
+    if (!bucket || !bucket->present)                                                                                   \
     {                                                                                                                  \
       return NULL;                                                                                                     \
     }                                                                                                                  \
