@@ -43,7 +43,7 @@
 #define VECTOR_IMPL_DEINIT_(VectorType, DataType, Destructor)                                                          \
   void VectorType##_deinit(VectorType* v)                                                                              \
   {                                                                                                                    \
-    static const dtor_ = Destructor;                                                                                   \
+    static const VectorType##_destructor_ dtor_ = Destructor;                                                          \
     if (dtor_.enabled)                                                                                                 \
     {                                                                                                                  \
       for (size_t i = 0; i < v->length; ++i)                                                                           \
