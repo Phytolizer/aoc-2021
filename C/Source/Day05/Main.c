@@ -140,7 +140,7 @@ int main(int argc, char** argv)
   }
 
   size_t count = 0;
-  for (size_t i = 0; i < p1map.bucketCount; ++i)
+  for (size_t i = 0; i < p1map.capacity; ++i)
   {
     if (p1map.buckets[i].present && p1map.buckets[i].value > 1)
     {
