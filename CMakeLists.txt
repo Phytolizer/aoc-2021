@@ -15,3 +15,4 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake Modules")
 include(PushDirectory)
 
 add_subdirectory("C")
+add_subdirectory("C2")

@@ -1,0 +1,3 @@
+#pragma once
+
+#define CMAKE_DAY_DIR "@DAY_DIR@"

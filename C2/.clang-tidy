@@ -1,0 +1,15 @@
+Checks: |
+  -*,
+  readability-identifier-naming,
+  bugprone-*,
+  -bugprone-macro-parentheses,
+  google-*,
+CheckOptions:
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.FunctionParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
